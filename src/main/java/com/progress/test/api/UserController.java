@@ -7,9 +7,14 @@ import com.progress.test.dto.response.jwt.JwtResponse;
 import com.progress.test.entity.User;
 //import com.progress.test.service.process.AuthService;
 import com.progress.test.service.process.UserService;
+import com.progress.test.util.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -17,10 +22,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("api/v1")
 public class UserController {
     private final UserService userService;
+    private final JwtTokenUtil jwtTokenUtil;
+    private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, JwtTokenUtil jwtTokenUtil, AuthenticationManager authenticationManager) {
+
         this.userService = userService;
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping("/register")
@@ -37,15 +47,21 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(customResponse);
     }
 
-    /*
+
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> loginUser(@RequestBody LoginRequestDto loginRequestDto) {
-        String token = authService.authenticateUser(loginRequestDto.getEmail(), loginRequestDto.getPassword());
-        JwtResponse jwtResponse = new JwtResponse(token);
-        return ResponseEntity.ok(jwtResponse);
+    public ResponseEntity<String> loginUser(@RequestBody UserDto userDto) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(userDto.getEmail(), userDto.getPassword())
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String token = jwtTokenUtil.generateToken(userDto.getEmail());
+
+        return ResponseEntity.ok(token);
+
     }
 
-     */
+
 
     @GetMapping("/welcome")
     public String welcome() {
