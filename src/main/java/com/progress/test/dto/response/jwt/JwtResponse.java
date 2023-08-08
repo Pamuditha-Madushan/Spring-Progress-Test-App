@@ -3,7 +3,10 @@ package com.progress.test.dto.response.jwt;
 import lombok.Data;
 
 @Data
-public class JwtResponse {
+public class JwtResponse<T>{
 
-    private final String token;
+    private int responseCode;
+    private boolean success;
+    private String message;
+    private T token;
 }

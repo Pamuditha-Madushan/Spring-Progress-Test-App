@@ -48,6 +48,15 @@ public class UserServiceImpl implements UserService {
         return  convertToDto(newUser);
     }
 
+    @Override
+    public UserDto getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            return null;
+        }
+        return convertToDto(user);
+    }
+
     private String generateRandomId () {
         return UUID.randomUUID().toString();
     }
@@ -57,6 +66,7 @@ public class UserServiceImpl implements UserService {
         UserDto userDto = new UserDto();
         userDto.setEmail(user.getEmail());
         userDto.setName(user.getName());
+        userDto.setUserId(user.getUserId());
 
         return userDto;
     }

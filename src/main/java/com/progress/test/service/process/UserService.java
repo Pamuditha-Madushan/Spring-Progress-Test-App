@@ -8,6 +8,8 @@ public interface UserService {
 
     UserDto registerUser(UserDto userDto);
 
+    UserDto getUserByEmail(String email);
+
    /* UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 
     */
