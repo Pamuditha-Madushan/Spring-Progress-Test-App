@@ -10,7 +10,5 @@ public interface UserService {
 
     UserDto getUserByEmail(String email);
 
-   /* UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 
-    */
 }
