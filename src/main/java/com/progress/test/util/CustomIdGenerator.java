@@ -1,5 +1,7 @@
 package com.progress.test.util;
 
+import com.progress.test.entity.Customer;
+import com.progress.test.entity.Order;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;
@@ -12,8 +14,13 @@ public class CustomIdGenerator implements IdentifierGenerator {
 
 
     private static final int ID_LENGTH = 10;
+
     public static String generateCustomerId() {
         return generateId("Cus");
+    }
+
+    public static String generateOrderId() {
+        return generateId("Ord");
     }
 
     private static String generateId(String prefix) {
@@ -26,7 +33,7 @@ public class CustomIdGenerator implements IdentifierGenerator {
         Random random = new Random();
         StringBuffer stringBuffer = new StringBuffer(length);
 
-        for (int i=0; i < length; i++) {
+        for (int i = 0; i < length; i++) {
             int randomIndex = random.nextInt(allowedCharacters.length());
             char randomChar = allowedCharacters.charAt(randomIndex);
             stringBuffer.append(randomChar);
@@ -37,6 +44,13 @@ public class CustomIdGenerator implements IdentifierGenerator {
 
     @Override
     public Serializable generate(SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException {
-        return generateCustomerId();
+        if (o instanceof Customer) {
+            return generateCustomerId();
+        } else if (o instanceof Order) {
+            return generateOrderId();
+        } else {
+            throw new IllegalArgumentException("Unsupported entity type !!");
+        }
     }
+
 }

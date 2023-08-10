@@ -2,13 +2,19 @@ package com.progress.test.service.impl;
 
 import com.progress.test.dto.CustomerDto;
 import com.progress.test.entity.Customer;
+import com.progress.test.exception.NoSuchElementException;
 import com.progress.test.repo.CustomerRepository;
 import com.progress.test.service.process.CustomerService;
 import lombok.AllArgsConstructor;
+import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -30,8 +36,57 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Optional<CustomerDto> findById(String id) {
+    public Optional<CustomerDto> findCustomerById(String id) {
         Optional<Customer> customer = customerRepository.findById(id);
         return customer.map(c -> modelMapper.map(c, CustomerDto.class));
     }
+
+    @Override
+    public List<CustomerDto> findAllCustomers() {
+        List<Customer> customers = customerRepository.findAllCustomers();
+        return customers.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public CustomerDto updateCustomer(String id, CustomerDto customerDto) {
+        Optional<Customer> existingCustomer = customerRepository.findById(id);
+        if (existingCustomer.isPresent()) {
+            Customer customer = existingCustomer.get();
+            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
+            modelMapper.map(customerDto, customer);
+            customerRepository.save(customer);
+            return modelMapper.map(customer, CustomerDto.class);
+        } else {
+            throw new NoSuchElementException("Customer not found with ID : " + id);
+        }
+
+    }
+
+
+    @Override
+    public Page<CustomerDto> findAllCustomersWithPagination(Pageable pageable) {
+        Page<Customer> paginatedCustomers = customerRepository.findAllCustomersWithPagination(pageable);
+        return paginatedCustomers
+                .map(this::convertToDto);
+    }
+
+    @Override
+    public Page<CustomerDto> searchCustomers(String searchText, Pageable pageable) {
+        Page<Customer> searchedCustomers = customerRepository.searchCustomers(searchText, pageable);
+        return searchedCustomers
+                .map(this::convertToDto);
+    }
+
+    private CustomerDto convertToDto(Customer customer) {
+        CustomerDto customerDto = new CustomerDto();
+        customerDto.setId(customer.getId());
+        customerDto.setName(customer.getName());
+        customerDto.setAddress(customer.getAddress());
+        customerDto.setSalary(customer.getSalary());
+        return customerDto;
+    }
+
+
 }
