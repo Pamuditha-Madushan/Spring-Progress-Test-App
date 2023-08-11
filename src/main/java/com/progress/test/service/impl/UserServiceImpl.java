@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -37,7 +38,7 @@ public class UserServiceImpl implements UserService {
 
         User newUser = new User();
 
-        newUser.setUserId(generateRandomId());
+        newUser.setId(generateRandomId());
         newUser.setEmail(userDto.getEmail());
         newUser.setName(userDto.getName());
         newUser.setPassword(hashedPassword);
@@ -57,6 +58,13 @@ public class UserServiceImpl implements UserService {
         return convertToDto(user);
     }
 
+
+    @Override
+    public User getUserById(String id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found !! " + id));
+    }
+
     private String generateRandomId () {
         return UUID.randomUUID().toString();
     }
@@ -66,7 +74,7 @@ public class UserServiceImpl implements UserService {
         UserDto userDto = new UserDto();
         userDto.setEmail(user.getEmail());
         userDto.setName(user.getName());
-        userDto.setUserId(user.getUserId());
+        userDto.setId(user.getId());
 
         return userDto;
     }

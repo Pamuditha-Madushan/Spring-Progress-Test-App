@@ -18,7 +18,7 @@ public class User {
 
     @Id
     @Column(length = 80, name= "user_id")
-    private String userId;
+    private String id;
 
     @Column(unique = true, length = 100, name = "email")
     private String email;

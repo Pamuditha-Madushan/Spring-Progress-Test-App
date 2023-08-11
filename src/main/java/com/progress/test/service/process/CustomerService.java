@@ -23,4 +23,6 @@ public interface CustomerService {
     Page<CustomerDto> findAllCustomersWithPagination(Pageable pageable);
 
     Page<CustomerDto> searchCustomers(String searchText, Pageable pageable);
+
+    Customer getCustomerById(String id);
 }
